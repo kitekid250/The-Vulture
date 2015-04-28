@@ -1,0 +1,14 @@
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\bin\Debug\VultureJog.exe
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\bin\Debug\VultureJog.pdb
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\bin\Debug\VultureJog.xml
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.Resources.resources
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.exe
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.xml
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.pdb
+C:\Documents and Settings\prd005\My Documents\Visual Studio 2010\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.Main.resources
+C:\Users\prd005\Documents\Visual Studio 2012\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.exe
+C:\Users\prd005\Documents\Visual Studio 2012\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.xml
+C:\Users\prd005\Documents\Visual Studio 2012\Projects\VultureJog\VultureJog\obj\x86\Debug\VultureJog.pdb

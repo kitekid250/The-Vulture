@@ -1,0 +1,36 @@
+Easiest case:
+	Only one motor and potentiometer
+	No additional tasks
+	Move until pot has reached threshold, simple controls
+		Start moving motor in correct direction
+		Check ADC for the motor until reaches correct position
+		Stop Motor
+
+Blinking LED Motor Case:
+	Only one motor and potentiometer
+	One additional task:
+		Blink a LED in background
+	Move until pot has reached threshold, simple controls
+		Start moving motor in correct direction
+		Check ADC and stop motor when it reaches the proper position
+
+Blinking LED Stepper Case:
+	Only one stepper and potentiometer
+	One additional task:
+		Blink a LED in background
+	Motion controls: ?
+	
+	This one is much more complicated because the stepper motor
+	must be constantly pulsed unlike the motors which operate 
+	independantly
+
+	Option A: The steppers moving might need to be the background task
+	Option B: Otherwise they will need to move a few steps and stop to check
+		the ADC.
+	Option C: Calculate the number of steps needed to move the steppers to get to the
+		desired position and step the motors.
+	
+Next:
+	Make a backup!
+	Move all code to a cpp file and add functions to set the motor positions per motor number
+	Test to make sure I didn't hose anything
