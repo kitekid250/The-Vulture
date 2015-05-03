@@ -130,22 +130,22 @@ void loop(){
   //Used to force a particular motion?
   if (digitalRead(SW2) == HIGH){
 
-  movement1();
-  delay(5000);
-  movement2();
-  delay(5000);
-  movement3();
-  delay(5000);
-  cycles ++;
-  Serial.printf("Cycles in:%d\n", cycles);
+    movement1();
+    delay(5000);
+    movement2();
+    delay(5000);
+    movement3();
+    delay(5000);
+    cycles ++;
+    Serial.printf("Cycles in:%d\n", cycles);
   }
 
   //error detection: by looking to see if any error flags have been raised
 
 
-    delay(700);
-    refreshWatchDog();
-  
+  delay(700);
+  refreshWatchDog();
+
 }
 
 
@@ -252,7 +252,6 @@ void movement3(){
   tipRMovement(0.8, 0.5);
   delay(200);
   neckMovement(300,1, true);
-  Serial.println("Point 1");
   delay(1000);
   double startTm = millis();
 
@@ -272,32 +271,27 @@ void movement3(){
   refreshWatchDog();
   moveServo(800, 0.9, 0.0);
 
-  Serial.println("Point 2");
 
 
   while(millis() - startTm < 7200){
   }
   moveServo(1000, 0.0, 0.8);
   refreshWatchDog();
-  Serial.println("Point 3");
 
   neckMovement(600, 0.9, true); //Home neck bottom
-  Serial.println("Point 4");
 
   wingMovementPercent(0.4, 1);
   tipLMovement(0.25, 0.5);
   tipRMovement(0.25, 0.5);
-  Serial.println("Point 5");
   refreshWatchDog();
 
   moveServo(1500, 0.8, 0.0);
   delay(5000);
-  Serial.println("Point 6");
 
   neckMovement(475, 0.9);
 
   homing = false;
-    refreshWatchDog();
+  refreshWatchDog();
 
 }
 
@@ -694,11 +688,11 @@ void neckMovement(int desiredPosition, float speedPercent, bool homing){
 
     if (!digitalRead(LS4)){
       neck.upperLim = analogRead(neck.PotPin);
-      Serial.println("New Upper Limit Set");
+      if (DEBUG) {Serial.println("New Upper Limit Set");}
     }
     else if (!digitalRead(LS3)){
       neck.lowerLim = analogRead(neck.PotPin);
-      Serial.println("New Lower Limit Set");
+      if (DEBUG) {Serial.println("New Lower Limit Set");}
 
     }
     //Back off the switch, ever so slightly
@@ -792,7 +786,7 @@ void asyncNeck(){
 
 void wingMovementPercent(float desiredPercent, float speedPercent){
   float desiredPosition = (desiredPercent * float(wings.upperLim - wings.lowerLim)) + wings.lowerLim;
-  Serial.printf("Desired wing position is: %d\n", int(desiredPosition));
+  if (DEBUG) {Serial.printf("Desired wing position is: %d\n", int(desiredPosition));}
   wingMovement(int(desiredPosition), speedPercent);
 }
 
@@ -930,7 +924,7 @@ boolean setupInterrupts(){
 
 void ISR_NeckTop(){
 
-  Serial.println("Hello2");
+  if (DEBUG) {Serial.println("ISR Neck Top");}
 
   analogWrite(PWMB, 0);
   neck.dir = 1;
@@ -1045,6 +1039,7 @@ float getTemperatureF(){
   float fahrenheit = (celcius * 9 / 5) + 32;
   return fahrenheit;
 }
+
 
 
 
