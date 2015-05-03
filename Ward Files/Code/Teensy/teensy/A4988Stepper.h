@@ -4,6 +4,8 @@
 #define UP 1
 #define DOWN -1
 
+void neckMovement(int desiredPosition, float speedPercent, bool homing = false);
+
 class Stepper
 {
 public:

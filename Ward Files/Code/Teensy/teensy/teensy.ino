@@ -38,7 +38,9 @@ time_t timeLast2 = 0;  //time since last big motion
 time_t timeLast1 = 0;  //time since last big motion
 time_t timePIR = 0;     //time since last pir reading
 
-boolean DEBUG = true;
+boolean DEBUG = false;
+boolean homing = false;
+int cycles = 0;
 
 
 void setup(){
@@ -47,7 +49,7 @@ void setup(){
   int beginTime = now();
   setupStrip();
   digitalWrite(FAN, HIGH);
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   //1 light green
   strip.setPixelColor(0, goodGreen);
@@ -70,7 +72,7 @@ void setup(){
   //3 lights green
   strip.setPixelColor(2, goodGreen);
   neckMovement(475, 0.5); //This is the "Default" neck position
-  wingMovementPercent(0.05, 0.5); //This is the "Deualt" wing position
+  wingMovementPercent(0.02, 0.5); //This is the "Deualt" wing position
   tipLMovement(0.15, 1);
   tipRMovement(0.15, 1);
   delay(2000);            //Give them time to move
@@ -89,7 +91,7 @@ void setup(){
   }
 
   //5 Lights green
-  setupWatchDog();
+  //setupWatchDog();
   strip.setPixelColor(4, goodGreen);
 
 }
@@ -128,20 +130,22 @@ void loop(){
   //Used to force a particular motion?
   if (digitalRead(SW2) == HIGH){
 
-    movement1();
-    delay(5000);
-    movement2();
-    delay(5000);
-    movement3();
-    delay(5000);
+  movement1();
+  delay(5000);
+  movement2();
+  delay(5000);
+  movement3();
+  delay(5000);
+  cycles ++;
+  Serial.printf("Cycles in:%d\n", cycles);
   }
 
   //error detection: by looking to see if any error flags have been raised
 
 
-
-  delay(700);
-  refreshWatchDog();
+    delay(700);
+    refreshWatchDog();
+  
 }
 
 
@@ -241,13 +245,14 @@ void movement2(){
 
 
 void movement3(){
-
+  homing = true;
   wingMovementPercent(0.95, 1);
   delay(400);
-  tipLMovement(0.7, 0.5);
-  tipRMovement(0.9, 0.5);
+  tipLMovement(0.8, 0.5);
+  tipRMovement(0.8, 0.5);
   delay(200);
-  neckMovement(300,1);
+  neckMovement(300,1, true);
+  Serial.println("Point 1");
   delay(1000);
   double startTm = millis();
 
@@ -267,20 +272,32 @@ void movement3(){
   refreshWatchDog();
   moveServo(800, 0.9, 0.0);
 
+  Serial.println("Point 2");
 
 
   while(millis() - startTm < 7200){
   }
   moveServo(1000, 0.0, 0.8);
   refreshWatchDog();
-  neckMovement(600, 0.9);
-  wingMovementPercent(0.08, 1);
+  Serial.println("Point 3");
+
+  neckMovement(600, 0.9, true); //Home neck bottom
+  Serial.println("Point 4");
+
+  wingMovementPercent(0.4, 1);
   tipLMovement(0.25, 0.5);
   tipRMovement(0.25, 0.5);
+  Serial.println("Point 5");
+  refreshWatchDog();
 
   moveServo(1500, 0.8, 0.0);
   delay(5000);
+  Serial.println("Point 6");
+
   neckMovement(475, 0.9);
+
+  homing = false;
+    refreshWatchDog();
 
 }
 
@@ -563,8 +580,8 @@ void tipLMovement(float desiredPercent, int speedPercent){
   }
 
   int desiredTimerInterval = (speedPercent * (750 - 100)) + 100;
-//  Serial.println("Desired Timer Interval");
-//  Serial.print(desiredTimerInterval);
+  //  Serial.println("Desired Timer Interval");
+  //  Serial.print(desiredTimerInterval);
   leftStepper.enable();
   leftStepperTimer.begin(asyncleftStepper, 1700);
 
@@ -638,16 +655,20 @@ void driveL(int microS){
 /////////////////////////////////////////////////////    Async Neck Functions    //////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-boolean homing = true;
 
-void neckMovement(int desiredPosition, float speedPercent){
+void neckMovement(int desiredPosition, float speedPercent, bool homing){
   //Set globals
+  if (DEBUG) {
+    Serial.println("Neck Movement Begun");
+  }
   int currentPos = analogRead(neck.PotPin);
   neck.desiredPos = desiredPosition;
   neck.speedPer = speedPercent;
   neck.rampUp = currentPos + (0.15 * (neck.desiredPos - currentPos));
   neck.rampDn = currentPos + (0.85 * (neck.desiredPos - currentPos));
   neck.dir = 0;
+  neck.homing = homing;
+
 
   neckTimer.priority(255);
 
@@ -662,18 +683,58 @@ void neckMovement(int desiredPosition, float speedPercent){
     neck.dir = -1;
 
   }
-  neckTimer.begin(asyncNeck, 5000);
+  if (homing) {
+    //Disable interrups
+    detachInterrupt(LS3);
+    detachInterrupt(LS4);
+    while (digitalRead(LS3) && digitalRead(LS4)){
+      digitalWrite(neck.PwmPin, HIGH);  //This happens on the final motion, so the neck has to run full speed.  No PWMing needed
+    }
+    digitalWrite(neck.PwmPin, LOW);  //Turn off the motor
 
+    if (!digitalRead(LS4)){
+      neck.upperLim = analogRead(neck.PotPin);
+      Serial.println("New Upper Limit Set");
+    }
+    else if (!digitalRead(LS3)){
+      neck.lowerLim = analogRead(neck.PotPin);
+      Serial.println("New Lower Limit Set");
+
+    }
+    //Back off the switch, ever so slightly
+    if (neck.dir == 1){
+      digitalWrite(neck.DirPin, HIGH); 
+    }
+    else{
+      digitalWrite(neck.DirPin, LOW); 
+    }
+    digitalWrite(neck.PwmPin, HIGH);  //Turn off the motor
+    delay(50);
+    digitalWrite(neck.PwmPin, LOW);  //Turn off the motor
+
+    //reenable interrupts
+    attachInterrupt(LS4, ISR_NeckTop, FALLING);
+    attachInterrupt(LS3, ISR_NeckBot, FALLING);
+
+  }
+  else{
+    neckTimer.begin(asyncNeck, 5000);
+  }
 
 }
 
 void asyncNeck(){
+
   int currentPos = analogRead(neck.PotPin);
   int threshold = 5;
   //Add in check for flag, and end if so
   //end
   //clear flags
   if (neck.dir == neck.flag){
+    if (DEBUG) {
+      Serial.println("Async Flag Triggered");
+    }
+
     analogWrite(neck.PwmPin, 0);
     neckTimer.end();
     neck.flag = 0; 
@@ -688,7 +749,9 @@ void asyncNeck(){
     neck.rampUpCounter = 0;
     neck.rampDnCounter = 0;
     neck.flag = 0;
-
+    if (DEBUG) {
+      Serial.println("Basecase Reached");
+    }
 
   }
 
@@ -859,57 +922,44 @@ void calibrateWings(){
 boolean setupInterrupts(){
   attachInterrupt(LS1, ISR_TipR, RISING);
   attachInterrupt(LS2, ISR_TipL, RISING);
-  attachInterrupt(LS3, ISR_NeckTop, FALLING);
-  attachInterrupt(LS4, ISR_NeckBot, FALLING);
+  attachInterrupt(LS4, ISR_NeckTop, FALLING);
+  attachInterrupt(LS3, ISR_NeckBot, FALLING);
   attachInterrupt(LS5, ISR_WingsBot, FALLING);
   attachInterrupt(LS6, ISR_WingsTop, FALLING); 
 }
 
 void ISR_NeckTop(){
-    Serial.println("Hello2");
+
+  Serial.println("Hello2");
 
   analogWrite(PWMB, 0);
   neck.dir = 1;
-    if (homing){
-    neck.upperLim = analogRead(neck.PotPin);
-      neck.flag = neck.dir;
 
-
-    if (DEBUG){
-      Serial.printf("New Neck Top Home: %d\n", neck.upperLim);
-    }
-  return;
-  }
-  digitalWrite(neck.DirPin, LOW);
-  analogWrite(neck.PwmPin, 120);
-  delay(500);
-  analogWrite(neck.PwmPin, 0);
-  //Raise flag
-  neck.flag = neck.dir;
-
-}
-
-void ISR_NeckBot(){
-  Serial.println("Hello1");
-  analogWrite(PWMB, 0);
-    neck.dir = 1;
-
-  if (homing){
-    neck.lowerLim = analogRead(neck.PotPin);
-      neck.flag = neck.dir;
-
-
-    if (DEBUG){
-      Serial.printf("New Neck Bottom Home: %d\n", neck.lowerLim);
-    }
-  return;
-  }
   digitalWrite(neck.DirPin, HIGH);
   analogWrite(neck.PwmPin, 120);
   delay(500);
   analogWrite(neck.PwmPin, 0);
   //Raise flag
   neck.flag = neck.dir;
+  attachInterrupt(LS4, ISR_NeckTop, FALLING);
+}
+
+void ISR_NeckBot(){
+  detachInterrupt(LS3);
+
+  Serial.println("Hello1");
+  analogWrite(PWMB, 0);
+  neck.dir = -1;
+
+
+  digitalWrite(neck.DirPin, LOW);
+  analogWrite(neck.PwmPin, 120);
+  delay(500);
+  analogWrite(neck.PwmPin, 0);
+  //Raise flag
+  neck.flag = neck.dir;
+  attachInterrupt(LS3, ISR_NeckBot, FALLING);
+
 
 }
 
@@ -995,4 +1045,7 @@ float getTemperatureF(){
   float fahrenheit = (celcius * 9 / 5) + 32;
   return fahrenheit;
 }
+
+
+
 

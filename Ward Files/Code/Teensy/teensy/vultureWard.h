@@ -67,6 +67,7 @@ struct DCMotor {
   int PotPin;
   int DirPin;
   int PwmPin;
+  bool homing;
   int LSUpperPin;
   int LSLowerPin;
   int expectedTop;

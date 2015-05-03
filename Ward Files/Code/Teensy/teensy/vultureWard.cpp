@@ -185,6 +185,7 @@ struct DCMotor calibrate(struct DCMotor motor){
   }
   analogWrite(motor.PwmPin, 0);
   motor.upperLim = analogRead(motor.PotPin);
+  
 
   //Run to bottom limit
   digitalWrite(motor.DirPin, HIGH);
