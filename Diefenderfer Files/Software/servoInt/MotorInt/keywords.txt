@@ -1,3 +1,0 @@
-MotorInt   		KEYWORD1
-updateMotors    KEYWORD2
-setMotor     	KEYWORD2
