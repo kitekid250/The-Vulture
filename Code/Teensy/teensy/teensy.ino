@@ -23,10 +23,10 @@ IntervalTimer rightStepperTimer;
 //NeoPixel Class and Color Setup//
 //NOTE: I made an addition to the NeoPixel Class, I added strip.show() to setPixelColor to remove one more call
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(5, LEDS, NEO_RGB + NEO_KHZ800);
-uint32_t goodGreen = strip.Color(0, 75, 0);
+uint32_t goodGreen = strip.Color(0, 20, 0);
 uint32_t warningYellow = strip.Color(75, 75, 0);
 uint32_t badRed = strip.Color(75, 0 , 0);
-uint32_t neutralBlue = strip.Color(0, 0, 75);
+uint32_t neutralBlue = strip.Color(0, 0, 20);
 
 //To call it use strip.setPixelColor(LED # (zero indexed), Defined color above (ie badRed));
 
@@ -99,35 +99,35 @@ void setup(){
 
 void loop(){
   //if 15 seconds has elapsed, do a PIR reading and push it into the occupancy array
-  if (timeDelta(timePIR, now()) > 15){
-    addAndShift(readPIR(), occupancyarray, occupancyarraySize);
-    timePIR = now();
-  }
+  // if (timeDelta(timePIR, now()) > 15){
+  //   addAndShift(readPIR(), occupancyarray, occupancyarraySize);
+  //   timePIR = now();
+  // }
 
-  //if 30 minutes has elapsed do movemnt 3
-  if (timeDelta(timeLast3, now()) > 30 * 60){
-    if (roomOccupied(occupancyarray, occupancyarraySize)){
-      movement3();
-    }
-    timeLast3 = 0; 
-  }
-  //elif 10 minutes has elapsed do movement 2
-  else if (timeDelta(timeLast2, now()) > 10 * 60){
-    if (roomOccupied(occupancyarray, occupancyarraySize)){
-      movement2();
-      timeLast2 = now();
-    }  
-  }
-  //elif 5 minutes has elapsed, do movement 1
-  else if(timeDelta(timeLast1, now()) > 1 * 60){
-    if (roomOccupied(occupancyarray, occupancyarraySize)){
-      //movement1();
-      timeLast1 = now(); 
-    }  
-  }
+  // //if 30 minutes has elapsed do movemnt 3
+  // if (timeDelta(timeLast3, now()) > 30 * 60){
+  //   if (roomOccupied(occupancyarray, occupancyarraySize)){
+  //     movement3();
+  //   }
+  //   timeLast3 = 0; 
+  // }
+  // //elif 10 minutes has elapsed do movement 2
+  // else if (timeDelta(timeLast2, now()) > 10 * 60){
+  //   if (roomOccupied(occupancyarray, occupancyarraySize)){
+  //     movement2();
+  //     timeLast2 = now();
+  //   }  
+  // }
+  // //elif 5 minutes has elapsed, do movement 1
+  // else if(timeDelta(timeLast1, now()) > 1 * 60){
+  //   if (roomOccupied(occupancyarray, occupancyarraySize)){
+  //     //movement1();
+  //     timeLast1 = now(); 
+  //   }  
+  // }
 
 
-  //Used to force a particular motion?
+  //Used to force a particular motion
   if (digitalRead(SW2) == HIGH){
 
     movement1();
