@@ -67,7 +67,7 @@ void setup(){
   rightStepper.calibrate();                                                                              ///////////ADD ROBUSTNESS to check if it has stalled
   leftStepper.calibrate();                                                                               ///////////ADD ROBUSTNESS to check if it has stalled
   neck = calibrate(neck);
-  calibrateWings();
+  //calibrateWings();
 
   //3 lights green
   strip.setPixelColor(2, goodGreen);
@@ -267,7 +267,7 @@ void movement3(){
   refreshWatchDog();
   while(millis() - startTm < 3666){
   }
-  moveServo(1200, 0.0, 0.9);
+  moveServo(1400, 0.0, 0.9);
   refreshWatchDog();
   moveServo(800, 0.9, 0.0);
 
@@ -277,17 +277,14 @@ void movement3(){
   }
   moveServo(1000, 0.0, 0.8);
   refreshWatchDog();
-
-  neckMovement(600, 0.9, true); //Home neck bottom
+  
+  moveServo(1500, 0.8, 0.0);
+  //neckMovement(600, 0.9, true); //Home neck bottom
 
   wingMovementPercent(0.4, 1);
-  tipLMovement(0.25, 0.5);
-  tipRMovement(0.25, 0.5);
+  tipLMovement(0.2, 0.5);
+  tipRMovement(0.2, 0.5);
   refreshWatchDog();
-
-  moveServo(1500, 0.8, 0.0);
-  delay(5000);
-
   neckMovement(475, 0.9);
 
   homing = false;
