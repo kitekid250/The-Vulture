@@ -258,7 +258,7 @@ void movement3(){
   homing = true;
   wingMovementPercent(0.95, 1);
   delay(400);
-  tipLMovement(0.8, 0.5);
+  tipLMovement(0.7, 0.5);
   tipRMovement(0.8, 0.5);
   delay(200);
   neckMovement(300,1, true);
