@@ -158,10 +158,11 @@ void setupPins(){
 }
 
 
-struct DCMotor constructDCMotor(int PotPinin, int PWMPinin, int DIRPinin, int LSUpperPinin, int LSLowerPinin, int expectedTop, int expectedBottom,  void (*wDg)()){
+struct DCMotor constructDCMotor(int PotPinin, int PWMPinin, int DIRPinin, int DIRPinin2, int LSUpperPinin, int LSLowerPinin, int expectedTop, int expectedBottom,  void (*wDg)()){
   DCMotor motor;
   motor.PwmPin = PWMPinin;
   motor.DirPin = DIRPinin;
+  motor.DirPin2 = DIRPinin;
   motor.PotPin = PotPinin;
   motor.LSUpperPin = LSUpperPinin;
   motor.LSLowerPin = LSLowerPinin;
@@ -170,6 +171,15 @@ struct DCMotor constructDCMotor(int PotPinin, int PWMPinin, int DIRPinin, int LS
   motor.refresh = wDg;
   motor.flag = 0;
   return motor;
+}
+
+bool setDCDir(int DirPin, int DirPin2, bool  state){
+ digitalWrite(DirPin, state);
+ if (DirPin2 < 50){
+  digitalWrite(DirPin2, !state);
+ }
+ //Serial.println("Exited set dc dir effectively");
+ return true;
 }
 
 struct DCMotor calibrate(struct DCMotor motor){

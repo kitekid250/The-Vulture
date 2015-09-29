@@ -11,12 +11,13 @@
 #define LS2 7
 #define LS4 8
 #define LS6 9
-#define W_SS 10
-#define W_MOSI 11
-#define W_MISO 12
-#define W_SCK 13
+//#define W_SS 10
+//#define W_MOSI 11
+//#define W_MISO 12
+//#define W_SCK 13
 #define DIRB 14
-#define DIRA 15
+#define DIRA 13
+#define DIRA2 12
 #define LEDS 16
 #define POT4 A3
 #define POT3 A4
@@ -33,12 +34,12 @@
 #define S_DCLK 29
 #define S_DIN 30
 #define S_BUSY 31
-#define PWMA 32
+#define PWMA 10
 #define PIR A10
 #define SW1 A11
 #define TEMP A14
 
-struct DCMotor constructDCMotor(int, int , int , int , int , int , int ,  void (*)());
+struct DCMotor constructDCMotor(int, int , int, int , int , int , int , int ,  void (*)());
 struct DCMotor calibrate(struct DCMotor);
 bool PIRRead(void);
 void setupPins();
@@ -50,7 +51,7 @@ float returnTemperature();
 void setupClock();
 time_t getTeensy3Time();
 time_t timeDelta(time_t, time_t);
-
+bool setDCDir(int, int, bool);
 
 
 struct DCMotor {
@@ -66,6 +67,7 @@ struct DCMotor {
   int lowerLim;
   int PotPin;
   int DirPin;
+  int DirPin2;
   int PwmPin;
   bool homing;
   int LSUpperPin;

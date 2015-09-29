@@ -72,10 +72,8 @@ void Stepper::calibrate(){
   int counter = 0;
 
   while(digitalRead(LimitSwitchPin) == HIGH){
-    step(3);
-    step(3);
-    step(3);
-    counter += 3;
+    step(5);
+    counter += 1;
 
     if (counter > 1000){
       Serial.println("Something is wrong.");

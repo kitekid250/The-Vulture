@@ -54,10 +54,25 @@ void setup(){
   //1 light green
   strip.setPixelColor(0, goodGreen);
   setupPins();
-  neck = constructDCMotor(POT3, PWMB, DIRB, LS4, LS3, 364, 509,  refreshWatchDog);
-  wings = constructDCMotor(POT4, PWMA, DIRA, LS6, LS5, 730, 1000, refreshWatchDog);
+  neck = constructDCMotor(POT3, PWMB, DIRB, 99, LS4, LS3, 364, 509,  refreshWatchDog);
+  wings = constructDCMotor(POT4, PWMA, DIRA, DIRA2, LS6, LS5, 730, 1000, refreshWatchDog);
   beak.attach(SERVO, 600, 2400);
   digitalWrite(FAN, HIGH);
+
+pinMode(12, OUTPUT);
+pinMode(13, OUTPUT);
+pinMode(11, OUTPUT);
+pinMode(10, OUTPUT);
+digitalWrite(11, HIGH);
+//  setDCDir(DIRA, DIRA2, HIGH);
+
+// digitalWrite(12, LOW);
+// digitalWrite(13, HIGH);
+//while(true){
+//   analogWrite(10, 100);
+//   Serial.println(digitalRead(LS5));
+//   delay(250);
+// }
 
   //2 lights green
   strip.setPixelColor(1, goodGreen);
@@ -67,12 +82,12 @@ void setup(){
   rightStepper.calibrate();                                                                              ///////////ADD ROBUSTNESS to check if it has stalled
   leftStepper.calibrate();                                                                               ///////////ADD ROBUSTNESS to check if it has stalled
   neck = calibrate(neck);
-  //calibrateWings();
+  calibrateWings();
 
   //3 lights green
   strip.setPixelColor(2, goodGreen);
   neckMovement(475, 0.5); //This is the "Default" neck position
-  wingMovementPercent(0.02, 0.5); //This is the "Deualt" wing position
+  wingMovementPercent(0.15, 0.5); //This is the "Default" wing position
   tipLMovement(0.15, 1);
   tipRMovement(0.15, 1);
   delay(2000);            //Give them time to move
@@ -128,8 +143,7 @@ void loop(){
 
 
   //Used to force a particular motion
-  if (digitalRead(SW2) == HIGH){
-
+  if (digitalRead(SW2) == LOW){
     movement1();
     delay(5000);
     movement2();
@@ -155,7 +169,7 @@ void loop(){
 
 void movement1(){
   //Wings open a bit
-  wingMovementPercent(0.25, .65);
+  wingMovementPercent(0.35, .65);
   neckMovement(440, 0.5);
   //Go rest
   double startTm = millis();
@@ -173,7 +187,7 @@ void movement1(){
   while(millis() - startTm < 1750){
   }
   refreshWatchDog();
-  wingMovementPercent(0.05, .65);
+  wingMovementPercent(0.15, .65);
   moveServo(0.25); //3
   while(millis() - startTm < 2500){
   }
@@ -187,10 +201,6 @@ void movement1(){
   moveServo(800, 0.25, 0.0);
   //This takes us to t = 4100
 
-
-
-
-    //Wings close a bit
 }
 void movement2(){
   wingMovementPercent(0.5, .55);
@@ -225,7 +235,7 @@ void movement2(){
   moveServo(0.6);
   while(millis() - startTm < 2100){
   }
-  wingMovementPercent(0.08, .55);
+  wingMovementPercent(0.15, .55);
 
   moveServo(0.05);
   //Move steppers
@@ -800,13 +810,17 @@ void wingMovement(int desiredPosition, float speedPercent){
   wingsTimer.priority(255);
 
   //Set the direction
-  if ((currentPos - wings.desiredPos) > 0){ //Go up
-    digitalWrite(wings.DirPin, LOW);
+  if ((currentPos - wings.desiredPos) < 0){ //Go up
+    setDCDir(DIRA, DIRA2, HIGH);
+    //setDCDir(wings.DirPin, wings.DirPin2, LOW);
+    //digitalWrite(wings.DirPin, LOW);
     wings.dir = -1;
 
   }
   else{                                    //Go down
-    digitalWrite(wings.DirPin, HIGH);
+    setDCDir(DIRA, DIRA2, LOW);
+    //setDCDir(wings.DirPin, wings.DirPin2, HIGH);
+    //digitalWrite(wings.DirPin, HIGH);
     wings.dir = 1;
 
   }
@@ -880,27 +894,31 @@ void asyncwings(){
 
 
 void calibrateWings(){
+  if(DEBUG){Serial.printf("Upper Limit: %d\n", wings.upperLim);
+  Serial.printf("Lower Limit: %d\n", wings.lowerLim);}
   //Find bottom limit
-  digitalWrite(DIRA, HIGH);
+  Serial.println("Entered fn");
+  setDCDir(DIRA, DIRA2, HIGH);
+  //digitalWrite(DIRA, HIGH);
   while(digitalRead(LS6) == HIGH){
     analogWrite(wings.PwmPin, 100); 
   }
   analogWrite(wings.PwmPin, 0);
   delay(1000);
   wings.upperLim = analogRead(wings.PotPin); 
-
-
-
+  digitalWrite(11, HIGH);
   //Find top limit
-  digitalWrite(DIRA, LOW);
+  setDCDir(DIRA, DIRA2, LOW);
+  //digitalWrite(DIRA, LOW);
   while(digitalRead(LS5) == HIGH){
     analogWrite(wings.PwmPin, 100); 
   }
   analogWrite(wings.PwmPin, 0);
   delay(1000);
-  wings.lowerLim = analogRead(wings.PotPin); 
-  Serial.printf("Upper Limit: %d\n", wings.upperLim);
-  Serial.printf("Lower Limit: %d\n", wings.lowerLim);
+  wings.lowerLim = analogRead(wings.PotPin);
+
+  if(DEBUG){Serial.printf("Upper Limit: %d\n", wings.upperLim);
+  Serial.printf("Lower Limit: %d\n", wings.lowerLim);}
 
 }
 
@@ -990,7 +1008,8 @@ void ISR_WingsBot(){
   wings.flag = -1;
   analogWrite(PWMA, 0);
   delay(300);
-  digitalWrite(DIRA, HIGH);
+  setDCDir(DIRA, DIRA2, HIGH);
+  //digitalWrite(DIRA, HIGH);
   while(digitalRead(LS5) == 0){
     analogWrite(PWMA, 100);
     delay(50);
@@ -1004,7 +1023,8 @@ void ISR_WingsTop(){
   wings.flag = 1;
   analogWrite(PWMA, 0);
   delay(300);
-  digitalWrite(DIRA, LOW);
+  setDCDir(DIRA, DIRA2, LOW);
+  //digitalWrite(DIRA, LOW);
   while(digitalRead(LS6) == 0){
     analogWrite(PWMA, 100);
     delay(50);
