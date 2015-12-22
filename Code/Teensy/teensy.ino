@@ -1031,8 +1031,6 @@ void ISR_WingsTop(){
   } 
   delay(100);
   analogWrite(PWMA, 0);
-
-
 }
 
 ////////////////////////////////////////////// Basic Helper Functions and Trivial Declarations    ////////////////////////////////////////////////
@@ -1056,8 +1054,3 @@ float getTemperatureF(){
   float fahrenheit = (celcius * 9 / 5) + 32;
   return fahrenheit;
 }
-
-
-
-
-
